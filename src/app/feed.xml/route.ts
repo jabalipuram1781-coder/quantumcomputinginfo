@@ -2,7 +2,7 @@ import { Feed } from "feed";
 import { getAllPosts } from "@/lib/content";
 import { siteConfig } from "@/lib/constants";
 
-export const runtime = "edge";
+export const dynamic = "force-static";
 
 export async function GET() {
   const posts = await getAllPosts();
