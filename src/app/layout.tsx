@@ -3,7 +3,6 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { siteConfig } from "@/lib/constants";
 
-export const runtime = "edge";
 import {
   generateOrganizationLD,
   generateWebSiteLD,
