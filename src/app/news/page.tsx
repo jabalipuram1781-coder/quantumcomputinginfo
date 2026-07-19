@@ -1,6 +1,8 @@
 import { getAllPosts } from "@/lib/content";
 import { NewsCard } from "@/components/blog/NewsCard";
 import { Pagination } from "@/components/blog/Pagination";
+
+export const runtime = "edge";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { generateMetadata } from "@/lib/metadata";
 
