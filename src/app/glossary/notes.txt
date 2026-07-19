@@ -1,0 +1,18 @@
+import * as React from "react";
+import { glossaryEntries } from "@/lib/glossary";
+import { generateMetadata } from "@/lib/metadata";
+import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
+import { BookOpen, Search, Code, Cpu, GraduationCap, Building2 } from "lucide-react";
+
+export const metadata = generateMetadata({
+  title: "Quantum Jargon Glossary | QuantumComputingInfo",
+  description: "A comprehensive dictionary and glossary of quantum computing terms, definitions, and concepts.",
+  path: "/glossary",
+});
+
+// Since metadata is exported statically, we need a Client Component for search but we can keep it clean or make a client-wrapper.
+// Or we can build the page as a client component directly, but we still need the metadata. Let's make this page a client component (with 'use client' at the top) and we can export metadata in a separate layout if needed, or we can just import a client-side layout.
+// Wait! Next.js allows metadata in Server Components, but if we mark this page as client component, we cannot export metadata.
+// The standard Next.js pattern is: the page file is a Server Component that handles layout and metadata, and imports a Client Component (e.g. `GlossaryList`) that does the search/filtering!
+// Let's create `src/components/blog/GlossaryList.tsx` first as a client component, and then render it in `src/app/glossary/page.tsx`.
+// This is perfect and adheres strictly to Next.js App Router rules!

@@ -1,0 +1,244 @@
+---
+title: "Quantum Gates and Circuits Explained"
+description: "A comprehensive guide to quantum logic gates — Pauli gates, Hadamard, CNOT, Toffoli — and how they combine to form quantum circuits."
+date: "2026-06-18"
+category: "quantum-basics"
+tags:
+  - quantum gates
+  - quantum circuits
+  - hadamard
+  - cnot
+featured: true
+author: "QuantumComputingInfo"
+image: ""
+source: "original"
+sourceUrl: ""
+sourceName: ""
+readingTime: 10
+difficulty: "beginner"
+draft: false
+---
+
+# Quantum Gates and Circuits Explained
+
+In classical computing, **logic gates** like AND, OR, and NOT form the foundation of all computation. Every program, every application, and every digital operation ultimately reduces to combinations of these simple gates. Quantum computing has its own set of gates — **quantum gates** — that manipulate qubits instead of bits. Understanding these gates is essential to understanding how quantum algorithms work.
+
+## What Is a Quantum Gate?
+
+A quantum gate is an operation that transforms the state of one or more qubits. Mathematically, quantum gates are represented by **unitary matrices** — matrices U that satisfy U†U = I, where U† is the conjugate transpose and I is the identity matrix.
+
+This unitarity condition has a profound consequence: **all quantum gates are reversible**. Every quantum operation can be undone. This is fundamentally different from classical computing, where gates like AND and OR are irreversible — you can't determine the inputs from the output alone.
+
+## Single-Qubit Gates
+
+Single-qubit gates transform the state of one qubit. They correspond to 2×2 unitary matrices and can be visualized as rotations on the Bloch sphere.
+
+### Pauli-X Gate (Quantum NOT)
+
+The **X gate** is the quantum version of the classical NOT gate. It flips |0⟩ to |1⟩ and |1⟩ to |0⟩:
+
+```math
+X = [0  1]
+    [1  0]
+```
+
+`X|0⟩ = |1⟩, X|1⟩ = |0⟩`
+
+On the Bloch sphere, the X gate performs a **180° rotation around the X-axis**, swapping the north and south poles.
+
+### Pauli-Y Gate
+
+The **Y gate** combines a bit flip with a phase change:
+
+```math
+Y = [0 -i]
+    [i  0]
+```
+
+`Y|0⟩ = i|1⟩, Y|1⟩ = -i|0⟩`
+
+Geometrically, this is a **180° rotation around the Y-axis** of the Bloch sphere.
+
+### Pauli-Z Gate (Phase Flip)
+
+The **Z gate** leaves |0⟩ unchanged but adds a negative phase to |1⟩:
+
+```math
+Z = [1  0]
+    [0 -1]
+```
+
+`Z|0⟩ = |0⟩, Z|1⟩ = -|1⟩`
+
+This is a **180° rotation around the Z-axis**. While it doesn't change measurement probabilities (|−1|² = 1), the phase change affects how the qubit interferes with other qubits — a crucial distinction in quantum computing.
+
+### Hadamard Gate (H)
+
+The **Hadamard gate** is arguably the most important single-qubit gate. It creates superposition from basis states:
+
+```math
+H = 1/sqrt(2) * [1  1]
+                [1 -1]
+```
+
+`H|0⟩ = 1/sqrt(2) * (|0⟩ + |1⟩) = |+⟩`
+
+`H|1⟩ = 1/sqrt(2) * (|0⟩ - |1⟩) = |-⟩`
+
+The Hadamard gate appears at the beginning of nearly every quantum algorithm. Applying H to n qubits initialized to |0⟩ creates an equal superposition over all 2ⁿ computational basis states — the starting point for quantum parallelism.
+
+**Key property**: H is its own inverse. Applying H twice returns the qubit to its original state: HH = I.
+
+### S Gate (Phase Gate) and T Gate
+
+The **S gate** adds a 90° phase to |1⟩:
+
+```math
+S = [1  0]
+    [0  i]
+```
+
+The **T gate** adds a 45° phase:
+
+```math
+T = [1      0   ]
+    [0  e^(iπ/4)]
+```
+
+These gates are important for constructing more complex operations. The set {H, T, CNOT} forms a **universal gate set**, meaning any quantum computation can be approximated to arbitrary precision using only these three gates.
+
+## Multi-Qubit Gates
+
+Multi-qubit gates operate on two or more qubits simultaneously and are essential for creating **entanglement** — the quintessential quantum resource.
+
+### CNOT Gate (Controlled-NOT)
+
+The **CNOT** (or CX) gate is the most important two-qubit gate. It has a **control qubit** and a **target qubit**. If the control is |1⟩, the target is flipped; if the control is |0⟩, nothing happens:
+
+```math
+CNOT = [1 0 0 0]
+       [0 1 0 0]
+       [0 0 0 1]
+       [0 0 1 0]
+```
+
+| Input | Output |
+|-------|--------|
+| \|00⟩ | \|00⟩ |
+| \|01⟩ | \|01⟩ |
+| \|10⟩ | \|11⟩ |
+| \|11⟩ | \|10⟩ |
+
+**Creating entanglement**: Apply H to the first qubit, then CNOT:
+
+`CNOT(H ⊗ I)|00⟩ = CNOT * 1/sqrt(2) * (|00⟩ + |10⟩) = 1/sqrt(2) * (|00⟩ + |11⟩)`
+
+This produces a **Bell state** — a maximally entangled state of two qubits. The two qubits are now perfectly correlated: measuring one immediately determines the other.
+
+### Controlled-Z Gate (CZ)
+
+The **CZ gate** applies a Z gate to the target qubit if the control qubit is |1⟩:
+
+```math
+CZ = [1 0 0  0]
+     [0 1 0  0]
+     [0 0 1  0]
+     [0 0 0 -1]
+```
+
+Unlike CNOT, the CZ gate is **symmetric** — it doesn't matter which qubit is the control and which is the target. CZ only adds a phase of −1 when both qubits are |1⟩.
+
+### SWAP Gate
+
+The **SWAP gate** exchanges the states of two qubits:
+
+`SWAP|01⟩ = |10⟩`
+
+It can be decomposed into three CNOT gates, which is useful when the quantum hardware doesn't natively support SWAP operations.
+
+### Toffoli Gate (CCNOT)
+
+The **Toffoli gate** (or CCX) is a three-qubit gate with two controls and one target. The target flips only when **both** controls are |1⟩:
+
+| Input | Output |
+|-------|--------|
+| \|000⟩ | \|000⟩ |
+| \|010⟩ | \|010⟩ |
+| \|100⟩ | \|100⟩ |
+| \|110⟩ | \|111⟩ |
+| \|111⟩ | \|110⟩ |
+
+The Toffoli gate is **universal for classical computation** — you can build any classical logic circuit using only Toffoli gates. Combined with the Hadamard gate, it becomes universal for quantum computation as well.
+
+### Fredkin Gate (Controlled-SWAP)
+
+The **Fredkin gate** (or CSWAP) swaps two target qubits when the control qubit is |1⟩. Like the Toffoli gate, it's also universal for classical computation.
+
+## Quantum Circuits
+
+A **quantum circuit** is a sequence of quantum gates applied to a set of qubits, typically read from left to right. Quantum circuits are the primary model for describing quantum algorithms.
+
+### Circuit Notation
+
+In quantum circuit diagrams:
+
+- **Horizontal lines** represent qubits (wires)
+- **Boxes** represent gates (e.g., H, X, Z)
+- **Vertical lines with dots** represent controlled operations
+- **Meter symbols** represent measurement
+- Time flows **left to right**
+
+### Example: Creating a Bell State
+
+The simplest entanglement circuit uses just two gates:
+
+```
+q₀: ─[H]─●─
+          │
+q₁: ─────⊕─
+```
+
+1. Apply Hadamard (H) to qubit 0, creating superposition
+2. Apply CNOT with qubit 0 as control and qubit 1 as target, creating entanglement
+
+Starting from |00⟩, this produces the Bell state (|00⟩ + |11⟩)/√2.
+
+### Circuit Composition Rules
+
+When building quantum circuits, keep these principles in mind:
+
+1. **Qubits start in |0⟩** by convention (unless otherwise initialized)
+2. **Gates are unitary**: Every gate must be a valid unitary transformation
+3. **Measurement is terminal**: Once measured, a qubit collapses and (typically) no further quantum operations are applied
+4. **No cloning**: You cannot copy quantum information using a circuit
+5. **Depth matters**: Circuit depth (longest path from input to output) determines execution time and error accumulation
+
+### Universal Gate Sets
+
+A set of gates is **universal** if any unitary transformation can be approximated to arbitrary accuracy using gates from that set. Common universal gate sets include:
+
+- **{H, T, CNOT}** — The standard universal set
+- **{H, Toffoli}** — An alternative with a three-qubit gate
+- **{Rx, Ry, CNOT}** — Rotation-based universal set (common in variational algorithms)
+
+In practice, quantum hardware implements a specific set of native gates, and compilers decompose high-level operations into these native gates.
+
+## From Gates to Algorithms
+
+Quantum algorithms are sophisticated circuits that exploit superposition, entanglement, and interference to solve specific problems:
+
+- **Deutsch-Jozsa algorithm**: Uses Hadamard gates and an oracle to determine if a function is constant or balanced — with just one query
+- **Grover's algorithm**: Uses Hadamard gates, oracle queries, and diffusion operators to search an unsorted database with quadratic speedup
+- **Quantum Fourier Transform (QFT)**: Uses Hadamard and controlled-phase gates — a key subroutine in Shor's factoring algorithm
+- **Variational algorithms (VQE, QAOA)**: Use parameterized rotation gates optimized by classical computers
+
+## Practical Considerations
+
+On real quantum hardware, gates aren't perfect:
+
+- **Gate errors**: Physical imperfections mean each gate has a small probability of error (typically 0.1–1% for two-qubit gates)
+- **Decoherence**: Qubits lose their quantum properties over time, limiting circuit depth
+- **Connectivity**: Not all qubits can directly interact; SWAP gates may be needed, adding depth and errors
+- **Compilation**: High-level gates must be decomposed into the hardware's native gate set
+
+Understanding quantum gates and circuits provides the vocabulary for reading, writing, and designing quantum algorithms. Whether you're simulating molecules, breaking codes, or searching databases, it all comes down to the right sequence of quantum gates.

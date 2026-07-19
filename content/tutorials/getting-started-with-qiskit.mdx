@@ -1,0 +1,385 @@
+---
+title: "Getting Started with Qiskit: Your First Quantum Circuit"
+description: "A step-by-step beginner tutorial for IBM's Qiskit framework — install, create quantum circuits, simulate, and measure results."
+date: "2026-06-18"
+category: "tutorials"
+tags:
+  - qiskit
+  - python
+  - ibm quantum
+  - tutorial
+featured: false
+author: "QuantumComputingInfo"
+image: ""
+source: "original"
+sourceUrl: ""
+sourceName: ""
+readingTime: 12
+difficulty: "beginner"
+draft: false
+---
+
+# Getting Started with Qiskit: Your First Quantum Circuit
+
+**Qiskit** (pronounced "kiss-kit") is IBM's open-source quantum computing framework. It's one of the most popular tools for learning and working with quantum computers, offering everything from circuit construction to execution on real quantum hardware. In this tutorial, we'll walk through installing Qiskit, building your first quantum circuit, simulating it, and interpreting the results.
+
+## Prerequisites
+
+Before you begin, make sure you have:
+
+- **Python 3.9 or higher** installed on your system
+- **pip** (Python package installer)
+- A basic understanding of Python programming
+- Familiarity with [quantum computing concepts](/articles/what-is-quantum-computing) (helpful but not required)
+
+## Step 1: Install Qiskit
+
+Open your terminal and install Qiskit using pip:
+
+```bash
+pip install qiskit
+```
+
+For the local simulator (Aer), also install:
+
+```bash
+pip install qiskit-aer
+```
+
+If you want to run circuits on real IBM quantum hardware, install the IBM Quantum provider:
+
+```bash
+pip install qiskit-ibm-runtime
+```
+
+Verify your installation:
+
+```python
+import qiskit
+print(qiskit.__version__)
+```
+
+You should see a version number like `1.x.x` printed to the console.
+
+## Step 2: Create Your First Quantum Circuit
+
+Let's start with the simplest possible quantum circuit — a single qubit that we put into superposition and then measure.
+
+```python
+from qiskit import QuantumCircuit
+
+# Create a circuit with 1 qubit and 1 classical bit
+qc = QuantumCircuit(1, 1)
+
+# Apply a Hadamard gate to qubit 0 (creates superposition)
+qc.h(0)
+
+# Measure qubit 0 into classical bit 0
+qc.measure(0, 0)
+
+# Draw the circuit
+print(qc.draw())
+```
+
+**Output:**
+```
+     ┌───┐┌─┐
+q_0: ┤ H ├┤M├
+     └───┘└╥┘
+c_0: ══════╩═
+```
+
+Let's break down what's happening:
+
+1. `QuantumCircuit(1, 1)` creates a circuit with 1 quantum register (qubit) and 1 classical register (bit for storing measurement results)
+2. `qc.h(0)` applies a **Hadamard gate** to qubit 0, putting it in an equal superposition of |0⟩ and |1⟩
+3. `qc.measure(0, 0)` measures qubit 0 and stores the result in classical bit 0
+
+## Step 3: Simulate the Circuit
+
+Now let's run this circuit on a simulator to see the results. We'll use Qiskit Aer's local simulator:
+
+```python
+from qiskit import QuantumCircuit
+from qiskit_aer import AerSimulator
+
+# Create the circuit
+qc = QuantumCircuit(1, 1)
+qc.h(0)
+qc.measure(0, 0)
+
+# Create a simulator backend
+simulator = AerSimulator()
+
+# Run the circuit 1000 times (shots)
+result = simulator.run(qc, shots=1000).result()
+
+# Get the measurement counts
+counts = result.get_counts(qc)
+print(f"Measurement results: {counts}")
+```
+
+**Example output:**
+```
+Measurement results: {'0': 498, '1': 502}
+```
+
+Since the Hadamard gate creates an equal superposition, we expect roughly **50% zeros and 50% ones**. The exact numbers will vary each time due to the probabilistic nature of quantum measurement — just like flipping a fair coin 1000 times won't give exactly 500 heads.
+
+## Step 4: Visualize the Results
+
+Qiskit includes powerful visualization tools. Let's create a histogram of our results:
+
+```python
+from qiskit.visualization import plot_histogram
+import matplotlib.pyplot as plt
+
+# Using the counts from the previous step
+fig = plot_histogram(counts)
+plt.title("Hadamard Gate Measurement Results")
+plt.savefig("measurement_results.png", dpi=150, bbox_inches="tight")
+plt.show()
+```
+
+This produces a bar chart showing the distribution of measurement outcomes.
+
+## Step 5: Build a Bell State Circuit
+
+Now let's create something more interesting — a **Bell state**, which is a two-qubit entangled state. This is one of the most fundamental circuits in quantum computing:
+
+```python
+from qiskit import QuantumCircuit
+from qiskit_aer import AerSimulator
+
+# Create a circuit with 2 qubits and 2 classical bits
+bell = QuantumCircuit(2, 2)
+
+# Apply Hadamard to qubit 0
+bell.h(0)
+
+# Apply CNOT with qubit 0 as control and qubit 1 as target
+bell.cx(0, 1)
+
+# Measure both qubits
+bell.measure([0, 1], [0, 1])
+
+print(bell.draw())
+```
+
+**Output:**
+```
+     ┌───┐     ┌─┐
+q_0: ┤ H ├──●──┤M├───
+     └───┘┌─┴─┐└╥┘┌─┐
+q_1: ─────┤ X ├─╫─┤M├
+          └───┘ ║ └╥┘
+c_0: ═══════════╩══╬═
+                   ║
+c_1: ══════════════╩═
+```
+
+Now simulate it:
+
+```python
+simulator = AerSimulator()
+result = simulator.run(bell, shots=1000).result()
+counts = result.get_counts(bell)
+print(f"Bell state results: {counts}")
+```
+
+**Example output:**
+```
+Bell state results: {'00': 493, '11': 507}
+```
+
+Notice something remarkable: **we only get '00' and '11', never '01' or '10'**. This is entanglement in action! The two qubits are perfectly correlated — when one is 0, the other is always 0, and when one is 1, the other is always 1.
+
+## Step 6: Explore the Statevector
+
+Sometimes you want to see the exact quantum state rather than measurement statistics. Qiskit can show you the **statevector** — the full mathematical description of the quantum state:
+
+```python
+from qiskit import QuantumCircuit
+from qiskit.quantum_info import Statevector
+
+# Create Bell state (without measurement)
+bell = QuantumCircuit(2)
+bell.h(0)
+bell.cx(0, 1)
+
+# Get the statevector
+state = Statevector.from_instruction(bell)
+print("Statevector:", state)
+
+# Display probabilities
+probs = state.probabilities_dict()
+print("Probabilities:", probs)
+```
+
+**Output:**
+```
+Statevector: [0.707+0.j, 0.+0.j, 0.+0.j, 0.707+0.j]
+Probabilities: {'00': 0.5, '11': 0.5}
+```
+
+The statevector confirms our Bell state: (|00⟩ + |11⟩)/√2, with coefficients of approximately 0.707 (which is 1/√2).
+
+## Step 7: Build a Multi-Gate Circuit
+
+Let's build a more complex circuit that demonstrates several gates:
+
+```python
+from qiskit import QuantumCircuit
+from qiskit_aer import AerSimulator
+
+# 3 qubits, 3 classical bits
+qc = QuantumCircuit(3, 3)
+
+# Put all qubits in superposition
+qc.h(0)
+qc.h(1)
+qc.h(2)
+
+# Add some entangling gates
+qc.cx(0, 1)  # CNOT: qubit 0 controls qubit 1
+qc.cx(1, 2)  # CNOT: qubit 1 controls qubit 2
+
+# Apply a phase gate
+qc.z(0)
+
+# Apply a T gate
+qc.t(2)
+
+# Measure all
+qc.measure([0, 1, 2], [0, 1, 2])
+
+print(qc.draw())
+
+# Simulate
+simulator = AerSimulator()
+result = simulator.run(qc, shots=2048).result()
+counts = result.get_counts(qc)
+
+# Sort and display results
+for outcome, count in sorted(counts.items()):
+    print(f"|{outcome}⟩: {count} ({count/2048*100:.1f}%)")
+```
+
+## Step 8: Run on Real Quantum Hardware (Optional)
+
+To run your circuit on a real IBM quantum computer, you need an IBM Quantum account:
+
+1. **Create a free account** at [quantum.ibm.com](https://quantum.ibm.com)
+2. **Get your API token** from your account dashboard
+3. **Connect and run**:
+
+```python
+from qiskit_ibm_runtime import QiskitRuntimeService, SamplerV2
+
+# Save your credentials (only needed once)
+QiskitRuntimeService.save_account(
+    channel="ibm_quantum",
+    token="YOUR_API_TOKEN_HERE"
+)
+
+# Connect to the service
+service = QiskitRuntimeService()
+
+# Select a backend (real quantum computer)
+backend = service.least_busy(simulator=False)
+print(f"Running on: {backend.name}")
+
+# Create and transpile your circuit
+from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
+
+qc = QuantumCircuit(2, 2)
+qc.h(0)
+qc.cx(0, 1)
+qc.measure([0, 1], [0, 1])
+
+# Transpile for the specific backend
+pm = generate_preset_pass_manager(backend=backend, optimization_level=1)
+transpiled = pm.run(qc)
+
+# Run using Sampler primitive
+sampler = SamplerV2(backend)
+job = sampler.run([transpiled], shots=1000)
+result = job.result()
+
+print("Results from real quantum hardware!")
+print(result[0].data.c.get_counts())
+```
+
+**Note**: Results from real hardware will show some '01' and '10' outcomes due to hardware noise — this is normal and expected in the NISQ era.
+
+## Common Gates Reference
+
+Here's a quick reference for the most common Qiskit gate methods:
+
+| Gate | Qiskit Method | Description |
+|------|---------------|-------------|
+| Hadamard | `qc.h(qubit)` | Creates superposition |
+| Pauli-X | `qc.x(qubit)` | Bit flip (NOT gate) |
+| Pauli-Y | `qc.y(qubit)` | Bit + phase flip |
+| Pauli-Z | `qc.z(qubit)` | Phase flip |
+| CNOT | `qc.cx(control, target)` | Controlled-NOT |
+| CZ | `qc.cz(control, target)` | Controlled-Z |
+| SWAP | `qc.swap(q1, q2)` | Swap two qubits |
+| Toffoli | `qc.ccx(c1, c2, target)` | Double-controlled NOT |
+| S Gate | `qc.s(qubit)` | π/2 phase |
+| T Gate | `qc.t(qubit)` | π/4 phase |
+| Rx | `qc.rx(θ, qubit)` | X-axis rotation |
+| Ry | `qc.ry(θ, qubit)` | Y-axis rotation |
+| Rz | `qc.rz(θ, qubit)` | Z-axis rotation |
+
+## Try it in the Simulator
+
+Before you write Qiskit code, you can build and test your quantum circuits interactively below! Place an **H** gate on `q[0]` to create a superposition, and notice the output state probabilities update in real-time.
+
+<QuantumSimulator />
+
+---
+
+## Concept Check
+
+Test your understanding of the concepts covered in this guide:
+
+<QuizWidget
+  id="qiskit_basics_1"
+  question="Which gate is used to create an equal superposition state from a classical basis state |0⟩?"
+  options={[
+    "Pauli-X Gate",
+    "Pauli-Z Gate",
+    "Hadamard Gate",
+    "CNOT Gate"
+  ]}
+  correctIndex={2}
+  explanation="The Hadamard (H) gate is a single-qubit gate that maps the basis state |0⟩ to (|0⟩ + |1⟩)/√2, creating an equal superposition of |0⟩ and |1⟩."
+/>
+
+<QuizWidget
+  id="qiskit_basics_2"
+  question="In the CNOT (Controlled-NOT) gate, what condition causes the target qubit to undergo a bit-flip (NOT operation)?"
+  options={[
+    "If the target qubit is in state |1⟩",
+    "If the control qubit is in state |1⟩",
+    "If both qubits are in state |0⟩",
+    "If the control qubit is in a superposition"
+  ]}
+  correctIndex={1}
+  explanation="The CNOT gate acts on two qubits: it performs a NOT (Pauli-X) flip on the target qubit only if the control qubit is in state |1⟩. If the control is |0⟩, the target is unchanged."
+/>
+
+---
+
+## Next Steps
+
+Now that you've built your first quantum circuits, here are some ideas to explore:
+
+1. **Build a quantum teleportation circuit** — Check our [quantum teleportation tutorial](/tutorials/quantum-teleportation-circuit)
+2. **Implement Deutsch's algorithm** — The simplest quantum algorithm that demonstrates quantum advantage
+3. **Explore variational circuits** — Learn about VQE and QAOA for optimization problems
+4. **Study quantum error correction** — Understand how we protect quantum information from noise
+5. **Try other frameworks** — Explore Google's Cirq, Amazon Braket, or Microsoft's Q#
+
+Happy quantum coding!

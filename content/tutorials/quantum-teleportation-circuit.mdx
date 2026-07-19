@@ -1,0 +1,305 @@
+---
+title: "Building a Quantum Teleportation Circuit"
+description: "Learn the theory behind quantum teleportation and implement a complete teleportation circuit using Qiskit, step by step."
+date: "2026-06-18"
+category: "tutorials"
+tags:
+  - quantum teleportation
+  - qiskit
+  - entanglement
+  - tutorial
+featured: false
+author: "QuantumComputingInfo"
+image: ""
+source: "original"
+sourceUrl: ""
+sourceName: ""
+readingTime: 12
+difficulty: "intermediate"
+draft: false
+---
+
+# Building a Quantum Teleportation Circuit
+
+**Quantum teleportation** is one of the most mind-bending protocols in quantum information science. Despite its science-fiction name, it's a real and well-demonstrated phenomenon — the transfer of a quantum state from one qubit to another using entanglement and classical communication. No physical matter is transported; instead, the quantum *information* is faithfully transmitted.
+
+In this tutorial, we'll understand the theory behind quantum teleportation and build a complete working implementation in Qiskit.
+
+## Prerequisites
+
+Before starting this tutorial, you should be comfortable with:
+
+- [Quantum gates and circuits](/articles/quantum-gates-circuits) (Hadamard, CNOT, Pauli gates)
+- [Basic Qiskit usage](/tutorials/getting-started-with-qiskit)
+- Bell states and entanglement
+
+## The Teleportation Problem
+
+Imagine Alice has a qubit in an unknown quantum state |ψ⟩ = α|0⟩ + β|1⟩ that she wants to send to Bob. She faces several constraints:
+
+1. **No-cloning theorem**: She cannot copy the quantum state
+2. **Measurement destroys information**: If she measures the qubit to learn its state, the superposition collapses
+3. **Classical channels only**: She can only send classical bits to Bob (no quantum channel available)
+
+Quantum teleportation solves this problem elegantly using a **pre-shared entangled pair** and **two classical bits** of communication.
+
+## The Teleportation Protocol
+
+The protocol involves three qubits:
+
+- **Qubit 0 (q₀)**: Alice's qubit in the unknown state |ψ⟩ to be teleported
+- **Qubit 1 (q₁)**: Alice's half of the entangled Bell pair
+- **Qubit 2 (q₂)**: Bob's half of the entangled Bell pair
+
+### Step-by-Step Protocol
+
+**Step 1: Prepare the entangled pair**
+
+Before teleportation begins, Alice and Bob share an entangled Bell state:
+
+`|Φ⁺⟩_12 = 1/sqrt(2) * (|00⟩ + |11⟩)`
+
+The full three-qubit state is:
+
+`|ψ⟩_0 ⊗ |Φ⁺⟩_12 = (α|0⟩ + β|1⟩) ⊗ 1/sqrt(2) * (|00⟩ + |11⟩)`
+
+**Step 2: Alice applies CNOT**
+
+Alice applies a CNOT gate with her qubit (q₀) as control and her half of the Bell pair (q₁) as target.
+
+**Step 3: Alice applies Hadamard**
+
+Alice applies a Hadamard gate to her qubit (q₀).
+
+**Step 4: Alice measures**
+
+Alice measures both her qubits (q₀ and q₁), obtaining two classical bits.
+
+**Step 5: Bob applies corrections**
+
+Based on Alice's measurement results, Bob applies corrections to his qubit (q₂):
+
+| Alice's result | Bob's correction |
+|---------------|-----------------|
+| 00 | None (I) |
+| 01 | Apply X gate |
+| 10 | Apply Z gate |
+| 11 | Apply Z then X |
+
+After corrections, Bob's qubit is in the state |ψ⟩ = α|0⟩ + β|1⟩ — the original state has been teleported!
+
+## Mathematical Derivation
+
+Let's trace through the mathematics to see why this works. We start with the initial state:
+
+`|Ψ⟩ = (α|0⟩_0 + β|1⟩_0) ⊗ 1/sqrt(2) * (|00⟩_12 + |11⟩_12)`
+
+Expanding:
+
+`|Ψ⟩ = 1/sqrt(2) * [α|000⟩ + α|011⟩ + β|100⟩ + β|111⟩]`
+
+After CNOT on q₀→q₁:
+
+`|Ψ⟩ = 1/sqrt(2) * [α|000⟩ + α|011⟩ + β|110⟩ + β|101⟩]`
+
+After Hadamard on q₀ (using H|0⟩ = (|0⟩+|1⟩)/√2 and H|1⟩ = (|0⟩−|1⟩)/√2):
+
+`|Ψ⟩ = 1/2 * [|00⟩(α|0⟩ + β|1⟩) + |01⟩(α|1⟩ + β|0⟩) + |10⟩(α|0⟩ - β|1⟩) + |11⟩(α|1⟩ - β|0⟩)]`
+
+Each of Alice's measurement outcomes is equally likely (probability 1/4), and for each outcome, Bob's qubit is a simple transformation of the original state |ψ⟩:
+
+- **00**: Bob has α|0⟩ + β|1⟩ → Apply I (no correction)
+- **01**: Bob has α|1⟩ + β|0⟩ → Apply X to get α|0⟩ + β|1⟩
+- **10**: Bob has α|0⟩ − β|1⟩ → Apply Z to get α|0⟩ + β|1⟩
+- **11**: Bob has α|1⟩ − β|0⟩ → Apply ZX to get α|0⟩ + β|1⟩
+
+## Qiskit Implementation
+
+Now let's implement the complete teleportation protocol:
+
+```python
+from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
+from qiskit_aer import AerSimulator
+from qiskit.quantum_info import Statevector
+import numpy as np
+
+def create_teleportation_circuit(state_prep_gate=None):
+    """
+    Create a quantum teleportation circuit.
+
+    Args:
+        state_prep_gate: Optional gate to prepare the initial state.
+                         If None, teleports |0⟩.
+    """
+    # Create registers
+    qr = QuantumRegister(3, 'q')
+    cr = ClassicalRegister(2, 'c')
+    qc = QuantumCircuit(qr, cr)
+
+    # ===== Step 0: Prepare the state to teleport =====
+    if state_prep_gate:
+        state_prep_gate(qc, qr[0])
+    qc.barrier()
+
+    # ===== Step 1: Create Bell pair between q1 and q2 =====
+    qc.h(qr[1])
+    qc.cx(qr[1], qr[2])
+    qc.barrier()
+
+    # ===== Step 2: Alice's operations =====
+    # CNOT with q0 as control, q1 as target
+    qc.cx(qr[0], qr[1])
+    # Hadamard on q0
+    qc.h(qr[0])
+    qc.barrier()
+
+    # ===== Step 3: Alice measures q0 and q1 =====
+    qc.measure(qr[0], cr[0])
+    qc.measure(qr[1], cr[1])
+    qc.barrier()
+
+    # ===== Step 4: Bob's conditional corrections =====
+    # If c1 == 1, apply X to q2
+    qc.x(qr[2]).c_if(cr[1], 1)
+    # If c0 == 1, apply Z to q2
+    qc.z(qr[2]).c_if(cr[0], 1)
+
+    return qc
+
+# Prepare a specific state to teleport: |ψ⟩ = cos(π/3)|0⟩ + sin(π/3)|1⟩
+def prepare_state(qc, qubit):
+    """Prepare an interesting state to teleport."""
+    qc.ry(2 * np.pi / 3, qubit)  # Ry rotation
+
+# Create the circuit
+qc = create_teleportation_circuit(prepare_state)
+print(qc.draw(output='text'))
+```
+
+**Circuit output:**
+```
+      ┌──────────┐ ░            ░      ┌───┐ ░ ┌─┐    ░       ┌───┐  ┌───┐
+q_0: ─┤ Ry(2π/3) ├─░────────────░───●──┤ H ├─░─┤M├────░───────┤   ├──┤   ├
+      └──────────┘ ░ ┌───┐      ░ ┌─┴─┐└───┘ ░ └╥┘┌─┐ ░       │   │  │   │
+q_1: ──────────────░─┤ H ├──●───░─┤ X ├──────░──╫─┤M├─░───────┤   ├──┤   ├
+                   ░ └───┘┌─┴─┐ ░ └───┘      ░  ║ └╥┘ ░  ┌───┐│   │  │   │
+q_2: ──────────────░──────┤ X ├─░─────────────░──╫──╫──░──┤ X ├┤   ├──┤ Z ├
+                   ░      └───┘ ░             ░  ║  ║  ░  └─╥─┘└───┘  └─╥─┘
+c: 2/════════════════════════════════════════════╩══╩════════╩════════════╩══
+                                                 0  1       1            0
+```
+
+## Verify the Teleportation
+
+Let's verify that the teleportation actually works by comparing the original state with the teleported state:
+
+```python
+import numpy as np
+from qiskit import QuantumCircuit
+from qiskit.quantum_info import Statevector
+from qiskit_aer import AerSimulator
+
+# First, let's see what state we're trying to teleport
+prep_circuit = QuantumCircuit(1)
+prep_circuit.ry(2 * np.pi / 3, 0)
+original_state = Statevector.from_instruction(prep_circuit)
+print(f"Original state to teleport: {original_state}")
+print(f"Original probabilities: {original_state.probabilities_dict()}")
+
+# Now run the teleportation circuit many times
+qc = create_teleportation_circuit(prepare_state)
+
+# Add measurement of Bob's qubit to verify
+qc.measure(2, 0)  # We'll reuse classical bit 0
+
+simulator = AerSimulator()
+result = simulator.run(qc, shots=10000).result()
+counts = result.get_counts()
+print(f"\nTeleportation results (Bob's qubit): {counts}")
+```
+
+## Understanding the Results
+
+The teleportation circuit demonstrates several deep principles:
+
+### 1. No Faster-Than-Light Communication
+Although Alice's measurement instantly affects Bob's qubit through entanglement, Bob cannot know what state he has until Alice sends her classical measurement results. The classical communication step is essential and limited by the speed of light.
+
+### 2. The Original State Is Destroyed
+After teleportation, Alice's qubit (q₀) has been measured and is no longer in state |ψ⟩. The quantum information has been **moved**, not copied. This is consistent with the no-cloning theorem.
+
+### 3. Entanglement Is Consumed
+The Bell pair shared between Alice and Bob is no longer entangled after the protocol. Entanglement is a resource that gets "used up" during teleportation.
+
+## Advanced: Teleporting Arbitrary States
+
+Let's teleport several different states and verify each one:
+
+```python
+import numpy as np
+from qiskit import QuantumCircuit
+from qiskit_aer import AerSimulator
+from qiskit.quantum_info import Statevector
+
+def verify_teleportation(theta, phi=0):
+    """Verify teleportation of state cos(θ/2)|0⟩ + e^(iφ)sin(θ/2)|1⟩"""
+
+    # Expected probabilities
+    p0 = np.cos(theta / 2) ** 2
+    p1 = np.sin(theta / 2) ** 2
+
+    # State preparation function
+    def prep(qc, qubit):
+        qc.ry(theta, qubit)
+        if phi != 0:
+            qc.rz(phi, qubit)
+
+    # Create and run teleportation circuit
+    qc = create_teleportation_circuit(prep)
+
+    # Measure Bob's qubit into a separate classical register
+    cr_bob = ClassicalRegister(1, 'bob')
+    qc.add_register(cr_bob)
+    qc.measure(2, cr_bob[0])
+
+    simulator = AerSimulator()
+    result = simulator.run(qc, shots=50000).result()
+    counts = result.get_counts()
+
+    # Extract Bob's measurement statistics
+    bob_0 = sum(v for k, v in counts.items() if k.split()[0] == '0')
+    bob_1 = sum(v for k, v in counts.items() if k.split()[0] == '1')
+    total = bob_0 + bob_1
+
+    print(f"θ={theta:.2f}, φ={phi:.2f}")
+    print(f"  Expected:  P(0)={p0:.3f}, P(1)={p1:.3f}")
+    print(f"  Measured:  P(0)={bob_0/total:.3f}, P(1)={bob_1/total:.3f}")
+    print()
+
+# Test various states
+print("=== Teleportation Verification ===\n")
+verify_teleportation(0)           # |0⟩
+verify_teleportation(np.pi)       # |1⟩
+verify_teleportation(np.pi / 2)   # |+⟩
+verify_teleportation(np.pi / 3)   # Arbitrary state
+verify_teleportation(2.5, 1.2)    # Arbitrary state with phase
+```
+
+## Applications of Quantum Teleportation
+
+Quantum teleportation isn't just a theoretical curiosity. It has practical applications in:
+
+- **Quantum networking**: Teleportation is a key primitive for quantum internet protocols, enabling secure transmission of quantum states between nodes
+- **Quantum error correction**: Teleportation-based error correction codes use the protocol to protect quantum information
+- **Distributed quantum computing**: Teleportation can link separate quantum processors into a larger virtual quantum computer
+- **Quantum key distribution**: Enhanced QKD protocols use teleportation for more robust security guarantees
+
+## Key Takeaways
+
+1. Quantum teleportation transfers quantum **state information**, not physical matter
+2. It requires a **pre-shared entangled pair** and **two classical bits** of communication
+3. The original state is **destroyed** in the process (no cloning)
+4. Entanglement is **consumed** — you need a new Bell pair for each teleportation
+5. It **does not** allow faster-than-light communication
+
+Quantum teleportation beautifully demonstrates the interplay between entanglement, measurement, and classical communication — the three pillars of quantum information science. Master this protocol, and you'll have a deep understanding of some of the most fundamental concepts in quantum computing.

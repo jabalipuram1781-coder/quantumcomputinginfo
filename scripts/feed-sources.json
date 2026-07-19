@@ -1,0 +1,42 @@
+[
+  {
+    "name": "arXiv quant-ph",
+    "url": "https://rss.arxiv.org/rss/quant-ph",
+    "category": "research",
+    "type": "research",
+    "enabled": true,
+    "maxItemsPerRun": 5
+  },
+  {
+    "name": "Quantum Computing Report",
+    "url": "https://quantumcomputingreport.com/feed",
+    "category": "news",
+    "type": "news",
+    "enabled": true,
+    "maxItemsPerRun": 5
+  },
+  {
+    "name": "ScienceDaily Quantum Computers",
+    "url": "https://www.sciencedaily.com/rss/computers_math/quantum_computers.xml",
+    "category": "news",
+    "type": "news",
+    "enabled": true,
+    "maxItemsPerRun": 5
+  },
+  {
+    "name": "IEEE Spectrum Quantum",
+    "url": "https://spectrum.ieee.org/feeds/feed.rss",
+    "category": "news",
+    "type": "news",
+    "enabled": true,
+    "maxItemsPerRun": 5
+  },
+  {
+    "name": "Google AI Blog",
+    "url": "https://blog.google/technology/ai/rss/",
+    "category": "news",
+    "type": "news",
+    "enabled": true,
+    "maxItemsPerRun": 3
+  }
+]
