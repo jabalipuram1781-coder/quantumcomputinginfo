@@ -1,6 +1,8 @@
 import { getAllPosts } from "@/lib/content";
 import { categories, getCategoryBySlug } from "@/lib/constants";
 import { ArticleCard } from "@/components/blog/ArticleCard";
+
+export const runtime = "edge";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { generateMetadata as siteGenerateMetadata } from "@/lib/metadata";
 import { notFound } from "next/navigation";

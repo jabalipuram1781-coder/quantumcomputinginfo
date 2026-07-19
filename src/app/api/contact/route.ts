@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+export const runtime = "edge";
+
 async function verifyTurnstile(token: string) {
   const secretKey = process.env.TURNSTILE_SECRET_KEY;
   if (!secretKey || secretKey === "PLACEHOLDER") {

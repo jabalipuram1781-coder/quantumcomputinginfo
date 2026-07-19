@@ -2,6 +2,8 @@ import { Feed } from "feed";
 import { getAllPosts } from "@/lib/content";
 import { siteConfig } from "@/lib/constants";
 
+export const runtime = "edge";
+
 export async function GET() {
   const posts = await getAllPosts();
   
