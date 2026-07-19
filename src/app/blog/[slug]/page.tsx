@@ -1,8 +1,6 @@
 import { getPostBySlug, getAllPosts, getRelatedPosts } from "@/lib/content";
 import { getCategoryBySlug } from "@/lib/constants";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
-
-export const runtime = "edge";
 import { ReadingProgress } from "@/components/layout/ReadingProgress";
 import { TableOfContents } from "@/components/blog/TableOfContents";
 import { ShareButtons } from "@/components/blog/ShareButtons";
