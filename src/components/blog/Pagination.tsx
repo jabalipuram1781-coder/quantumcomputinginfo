@@ -14,7 +14,8 @@ export function Pagination({ currentPage, totalPages, basePath }: PaginationProp
 
   const getPageUrl = (page: number) => {
     if (page === 1) return basePath;
-    return `${basePath}?page=${page}`;
+    const separator = basePath.includes("?") ? "&" : "?";
+    return `${basePath}${separator}page=${page}`;
   };
 
   // Generate page numbers to show
