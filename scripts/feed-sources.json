@@ -16,6 +16,30 @@
     "maxItemsPerRun": 5
   },
   {
+    "name": "The Quantum Insider",
+    "url": "https://thequantuminsider.com/feed/",
+    "category": "news",
+    "type": "news",
+    "enabled": true,
+    "maxItemsPerRun": 5
+  },
+  {
+    "name": "Phys.org Quantum Physics",
+    "url": "https://phys.org/rss-feed/physics-news/quantum-physics/",
+    "category": "news",
+    "type": "news",
+    "enabled": true,
+    "maxItemsPerRun": 5
+  },
+  {
+    "name": "MIT News Quantum",
+    "url": "https://news.mit.edu/rss/topic/quantum-computing",
+    "category": "news",
+    "type": "news",
+    "enabled": true,
+    "maxItemsPerRun": 5
+  },
+  {
     "name": "ScienceDaily Quantum Computers",
     "url": "https://www.sciencedaily.com/rss/computers_math/quantum_computers.xml",
     "category": "news",
