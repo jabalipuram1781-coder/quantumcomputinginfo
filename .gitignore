@@ -43,4 +43,6 @@ next-env.d.ts
 # generated build cache
 /src/lib/posts-cache.json
 
-.idea/commit
+# IDE / Editor files
+.idea/
+.vscode/
