@@ -125,9 +125,9 @@ async function run() {
 
         console.log(`+ Processing new item: "${item.title}"`);
 
-        const cleanTitle = item.title.replace(/"/g, '\\"').replace(/\{/g, '\\{').replace(/\}/g, '\\}').trim();
+        const cleanTitle = item.title.replace(/'/g, "''").trim();
         const rawContent = item.contentSnippet || item.content || "";
-        const cleanDescription = stripHtml(rawContent).substring(0, 160).replace(/\{/g, '\\{').replace(/\}/g, '\\}').replace(/"/g, '\\"').trim() + "...";
+        const cleanDescription = stripHtml(rawContent).substring(0, 160).replace(/'/g, "''").trim() + "...";
         const cleanBody = stripHtml(rawContent).replace(/\{/g, '\\{').replace(/\}/g, '\\}').trim();
 
         const dates = formatDate(item.pubDate || item.isoDate);
@@ -151,16 +151,16 @@ async function run() {
 
         // Generate MDX file contents
         const fileContent = `---
-title: "${cleanTitle}"
-description: "${cleanDescription.replace(/"/g, '\\"')}"
-date: "${dates.iso}"
-category: "${source.category}"
+title: '${cleanTitle}'
+description: '${cleanDescription}'
+date: '${dates.iso}'
+category: '${source.category}'
 tags:
 ${tags.map((t) => `  - ${t}`).join("\n")}
-author: "Quantum Editorial Team"
-source: "aggregated"
-sourceName: "${source.name}"
-sourceUrl: "${item.link}"
+author: 'Quantum Editorial Team'
+source: 'aggregated'
+sourceName: '${source.name.replace(/'/g, "''")}'
+sourceUrl: '${item.link.replace(/'/g, "''")}'
 featured: false
 draft: false
 ---
