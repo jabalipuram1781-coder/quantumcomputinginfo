@@ -1,0 +1,28 @@
+---
+title: 'Qupertino: Pure MLX Array Kernels versus Hand-Tuned Metal Shaders for Quantum Circuit Simulation on Apple Silicon'
+description: 'arXiv:2609.19147v1 Announce Type: new Abstract: We present Qupertino, an open-source quantum circuit simulator for Apple Silicon, and use it to ask how far a si...'
+date: '2026-09-18'
+category: 'research'
+tags:
+  - research
+  - qiskit
+  - qubits
+author: 'Quantum Editorial Team'
+source: 'aggregated'
+sourceName: 'arXiv quant-ph'
+sourceUrl: 'https://arxiv.org/abs/2609.19147'
+featured: false
+draft: false
+---
+
+# Qupertino: Pure MLX Array Kernels versus Hand-Tuned Metal Shaders for Quantum Circuit Simulation on Apple Silicon
+
+> **Source:** Originally published on [arXiv quant-ph](https://arxiv.org/abs/2609.19147) on September 18, 2026.
+
+arXiv:2609.19147v1 Announce Type: new Abstract: We present Qupertino, an open-source quantum circuit simulator for Apple Silicon, and use it to ask how far a simulator written purely in MLX array operations can go and what remains for hand-tuned Metal shaders. The framework ships two measured tiers. The pure tier dispatches structured gates to specialized MLX kernels: diagonal gates run as broadcast phase multiplies, controlled gates as masked half-state updates, and SWAP as an axis permutation; a paired dense-path ablation attributes a 25-33x speedup to this dispatch alone. The opt-in shader tier adds hand-written Metal kernels for every structured layer family in our benchmarks, including phase-LUT diagonals, GF(2) affine permutation gathers, fused tensor-product single-qubit layers, rad...
+
+---
+
+To read the full article, visit the original source page:
+
+[Read the full article on arXiv quant-ph →](https://arxiv.org/abs/2609.19147)
